@@ -10,18 +10,18 @@ class Centient < Formula
   on_macos do
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-      sha256 "b62d3adfa6b582323871835d2ce1d8724c529e3b3edfac69d07112f75dc2e9b3"
+      sha256 "f21515449450934f7fe5d61c7958680255f1cd4d7a74b29c8efb3695fa0c1cea"
     end
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-x64.tar.gz"
-      sha256 "43aab3de19dc9e0f3ca89bc32a175ee8d69a90b7ba00234ee2eca9528bdea97f"
+      sha256 "3b14d5d9cd5b8831a5f4c8ed283f33ce3e7679c69503702056d3996bbc6548ed"
     end
   end
 
   on_linux do
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-linux-x64.tar.gz"
-      sha256 "b770a9b007a48f209b44a934f2d94406afceeb553dfaa93a0cb09a495470de88"
+      sha256 "2ab82ac703d9b90e44f3d62e8b83e0d3604d2b12bb599bc7b51db3eeda73ab0f"
     end
   end
 
