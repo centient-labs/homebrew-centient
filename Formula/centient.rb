@@ -4,7 +4,7 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.1.5"
+  version "0.1.6"
   # license - TBD
 
   on_macos do
@@ -28,6 +28,15 @@ class Centient < Formula
   def install
     bin.install "centient"
     bin.install "engram-local"
+
+    # Install embedded PostgreSQL binaries
+    if File.directory?("postgres")
+      (share/"centient"/"postgres").install Dir["postgres/*"]
+      # Make binaries executable
+      Dir[share/"centient"/"postgres"/"bin"/"*"].each do |f|
+        chmod 0755, f if File.file?(f)
+      end
+    end
 
     # Install local-ui and its static files if present
     if File.exist?("local-ui")
