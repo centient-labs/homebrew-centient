@@ -4,7 +4,7 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.1.6"
+  version "0.1.7"
   # license - TBD
 
   on_macos do
@@ -35,6 +35,22 @@ class Centient < Formula
       # Make binaries executable
       Dir[share/"centient"/"postgres"/"bin"/"*"].each do |f|
         chmod 0755, f if File.file?(f)
+      end
+      # Create required library symlinks from pg-symlinks.json
+      symlinks_file = share/"centient"/"postgres"/"pg-symlinks.json"
+      if File.exist?(symlinks_file)
+        require "json"
+        symlinks = JSON.parse(File.read(symlinks_file))
+        symlinks.each do |link|
+          # Paths in JSON are like "native/lib/..." but we installed to "lib/..."
+          source = link["source"].sub("native/", "")
+          target = link["target"].sub("native/", "")
+          source_path = share/"centient"/"postgres"/source
+          target_path = share/"centient"/"postgres"/target
+          if File.exist?(source_path) && !File.exist?(target_path)
+            ln_s source_path.basename, target_path
+          end
+        end
       end
     end
 
