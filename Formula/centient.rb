@@ -3,28 +3,28 @@
 
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
-  homepage "https://github.com/existence-labs/centient"
+  homepage "https://github.com/centient-labs/centient"
   version "0.1.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/existence-labs/centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
+      url "https://github.com/centient-labs/centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
       # sha256 "PLACEHOLDER" # Updated by release workflow
     end
     on_intel do
-      url "https://github.com/existence-labs/centient/releases/download/v#{version}/centient-macos-x64.tar.gz"
+      url "https://github.com/centient-labs/centient/releases/download/v#{version}/centient-macos-x64.tar.gz"
       # sha256 "PLACEHOLDER" # Updated by release workflow
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/existence-labs/centient/releases/download/v#{version}/centient-linux-arm64.tar.gz"
+      url "https://github.com/centient-labs/centient/releases/download/v#{version}/centient-linux-arm64.tar.gz"
       # sha256 "PLACEHOLDER" # Updated by release workflow
     end
     on_intel do
-      url "https://github.com/existence-labs/centient/releases/download/v#{version}/centient-linux-x64.tar.gz"
+      url "https://github.com/centient-labs/centient/releases/download/v#{version}/centient-linux-x64.tar.gz"
       # sha256 "PLACEHOLDER" # Updated by release workflow
     end
   end

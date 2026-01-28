@@ -1,17 +1,17 @@
 # Homebrew Tap for Centient
 
-This is the official Homebrew tap for [Centient](https://github.com/existence-labs/centient) - a context engineering MCP server for Claude Code.
+This is the official Homebrew tap for [Centient](https://github.com/centient-labs/centient) - a context engineering MCP server for Claude Code.
 
 ## Installation
 
 ```bash
-brew install existence-labs/centient/centient
+brew install centient-labs/centient/centient
 ```
 
 Or:
 
 ```bash
-brew tap existence-labs/centient
+brew tap centient-labs/centient
 brew install centient
 ```
 
@@ -54,4 +54,4 @@ brew services start centient
 
 ## Documentation
 
-See the main repository: https://github.com/existence-labs/centient
+See the main repository: https://github.com/centient-labs/centient
