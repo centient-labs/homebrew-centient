@@ -4,8 +4,8 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.1.1"
-  license "MIT"
+  version "0.1.2"
+  # license - TBD
 
   on_macos do
     on_arm do
