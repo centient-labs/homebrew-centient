@@ -54,6 +54,17 @@ class Centient < Formula
       end
     end
 
+    # Install ONNX Runtime for local embeddings (Transformers.js)
+    # The dylib is installed alongside the binary so it can be found at runtime
+    if File.directory?("onnxruntime")
+      # Install to share for the .node file
+      (share/"centient"/"onnxruntime").install Dir["onnxruntime/*"]
+      # Also copy dylib to bin directory (same dir as binary) for rpath resolution
+      Dir["onnxruntime/*.dylib"].each do |f|
+        cp f, bin/
+      end
+    end
+
     # Install local-ui and its static files if present
     if File.exist?("local-ui")
       bin.install "local-ui"
