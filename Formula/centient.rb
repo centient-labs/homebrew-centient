@@ -4,13 +4,13 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.2.3"
+  version "0.2.4"
   # license - TBD
 
   on_macos do
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-      sha256 "15b6dfca696fa839d65c0fb2cce8135da8c75d761986306d31f6234a556aa496"
+      sha256 "192bce66d9893618ab11a7285f66091c7686a636ddf824b2f1a1fd69b8789166"
     end
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-x64.tar.gz"
