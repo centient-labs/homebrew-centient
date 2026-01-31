@@ -4,13 +4,13 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.2.12"
+  version "0.2.13"
   # license - TBD
 
   on_macos do
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-      sha256 "16be72210a7fb2cb04c3d1faf085b6ff2a7fe222a52af2880f5df50254d426a9"
+      sha256 "8a23179cdac8b586a600ce0a703565a551a08ff98a9e45c5a134aa044e0e4162"
     end
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-x64.tar.gz"
@@ -65,12 +65,21 @@ class Centient < Formula
       end
     end
 
-    # Install local-ui and its static files if present
-    if File.exist?("local-ui")
-      bin.install "local-ui"
+    # Install Sharp for image processing (required by transformers.js)
+    if File.directory?("sharp")
+      (share/"centient"/"sharp").install Dir["sharp/*"]
+      # Copy dylibs to bin directory for rpath resolution
+      Dir["sharp/*.dylib"].each do |f|
+        cp f, bin
+      end
     end
-    if File.directory?("local-ui-dist")
-      (share/"centient"/"local-ui-dist").install Dir["local-ui-dist/*"]
+
+    # Install centient-web and its static files if present
+    if File.exist?("centient-web")
+      bin.install "centient-web"
+    end
+    if File.directory?("centient-web-dist")
+      (share/"centient"/"centient-web-dist").install Dir["centient-web-dist/*"]
     end
   end
 
@@ -107,7 +116,7 @@ class Centient < Formula
       3. Restart Claude Code to load the MCP server.
 
       4. (Optional) Open the dashboard:
-         local-ui
+         centient-web
          Then visit http://localhost:3101
 
       SERVICES
