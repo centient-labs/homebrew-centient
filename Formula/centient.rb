@@ -61,7 +61,7 @@ class Centient < Formula
       (share/"centient"/"onnxruntime").install Dir["onnxruntime/*"]
       # Also copy dylib to bin directory (same dir as binary) for rpath resolution
       Dir["onnxruntime/*.dylib"].each do |f|
-        cp f, bin/
+        cp f, bin
       end
     end
 
