@@ -4,13 +4,13 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.4.0"
+  version "0.5.0"
   # license - TBD
 
   on_macos do
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-      sha256 "aeb80ded0f65dbfe63e5e370d5a880801ea42e255856b7de92ce71deef17e35e"
+      sha256 "b7d54fe2f5639790073159d55c9f1e9f75491bedc2644983f06296a0f6dc5ee3"
     end
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-x64.tar.gz"
@@ -81,58 +81,57 @@ class Centient < Formula
     if File.directory?("centient-web-dist")
       (share/"centient"/"centient-web-dist").install Dir["centient-web-dist/*"]
     end
+
+    # Install command templates to share directory
+    if File.directory?("templates/commands")
+      (share/"centient"/"templates"/"commands").install Dir["templates/commands/*.md"]
+    end
   end
 
   def post_install
-    # Create engram data directory
     (var/"engram").mkpath
+
+    claude_dir = Pathname.new(Dir.home)/".claude"
+    commands_dir = claude_dir/"commands"
+    commands_dir.mkpath
+
+    # 1. Install commands (preserve user customizations)
+    source_dir = share/"centient"/"templates"/"commands"
+    if source_dir.exist?
+      Dir[source_dir/"*.md"].each do |template|
+        dest = commands_dir/File.basename(template)
+        if dest.exist?
+          # Only update if has centient-version header (our managed file)
+          next unless dest.read.include?("centient-version:")
+        end
+        FileUtils.cp(template, dest)
+      end
+    end
+
+    # 2. Configure MCP server
+    settings_path = claude_dir/"settings.json"
+    settings = settings_path.exist? ? JSON.parse(settings_path.read) rescue {} : {}
+    settings["mcpServers"] ||= {}
+    settings["mcpServers"]["centient"] = {
+      "type" => "stdio",
+      "command" => "#{HOMEBREW_PREFIX}/bin/centient",
+      "args" => []
+    }
+    claude_dir.mkpath
+    settings_path.write(JSON.pretty_generate(settings) + "\n")
   end
 
   def caveats
     <<~EOS
-      Centient has been installed!
+      Centient installed and configured!
 
-      QUICK START
-      ===========
+      RESTART CLAUDE CODE to activate.
 
-      1. Start the memory server (runs in background):
-         engram-local start
+      Commands installed to ~/.claude/commands/
+      MCP server added to ~/.claude/settings.json
 
-      2. Add to Claude Code MCP settings.
-
-         Run this command to see your current config location:
-           claude config
-
-         Add to the "mcpServers" section of your settings file:
-         {
-           "mcpServers": {
-             "centient": {
-               "command": "#{HOMEBREW_PREFIX}/bin/centient",
-               "args": []
-             }
-           }
-         }
-
-      3. Restart Claude Code to load the MCP server.
-
-      4. (Optional) Open the dashboard:
-         centient-web
-         Then visit http://localhost:3101
-
-      SERVICES
-      ========
-
-      To have engram-local start automatically at login:
-        brew services start centient
-
-      To stop the service:
-        brew services stop centient
-
-      DATA LOCATION
-      =============
-
-      Session data is stored in: ~/.engram/
-      Logs are in: ~/.engram/logs/
+      To uninstall: centient uninstall
+      To start memory server: brew services start centient
     EOS
   end
 
