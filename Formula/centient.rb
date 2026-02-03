@@ -46,11 +46,8 @@ class Centient < Formula
     end
 
     # Install ONNX Runtime for local embeddings (Transformers.js)
-    # The dylib is installed alongside the binary so it can be found at runtime
     if File.directory?("onnxruntime")
-      # Install to share for the .node file
       (share/"centient"/"onnxruntime").install Dir["onnxruntime/*"]
-      # Also copy dylib to bin directory (same dir as binary) for rpath resolution
       Dir["onnxruntime/*.dylib"].each do |f|
         cp f, bin
       end
@@ -59,7 +56,6 @@ class Centient < Formula
     # Install Sharp for image processing (required by transformers.js)
     if File.directory?("sharp")
       (share/"centient"/"sharp").install Dir["sharp/*"]
-      # Copy dylibs to bin directory for rpath resolution
       Dir["sharp/*.dylib"].each do |f|
         cp f, bin
       end
@@ -73,7 +69,7 @@ class Centient < Formula
       (share/"centient"/"centient-web-dist").install Dir["centient-web-dist/*"]
     end
 
-    # Install command templates to share directory
+    # Install command templates to share directory (installed to ~/.claude by centient doctor)
     if File.directory?("templates/commands")
       (share/"centient"/"templates"/"commands").install Dir["templates/commands/*.md"]
     end
@@ -81,57 +77,21 @@ class Centient < Formula
 
   def post_install
     (var/"engram").mkpath
-
-    claude_dir = Pathname.new(Dir.home)/".claude"
-    commands_dir = claude_dir/"commands"
-    commands_dir.mkpath
-
-    # 1. Install commands (preserve user customizations)
-    # Use system cp to avoid Ruby sandbox restrictions
-    source_dir = share/"centient"/"templates"/"commands"
-    if source_dir.exist?
-      Dir[source_dir/"*.md"].each do |template|
-        dest = commands_dir/File.basename(template)
-        if dest.exist?
-          # Only update if has centient-version header (our managed file)
-          begin
-            next unless File.read(dest).include?("centient-version:")
-          rescue
-            next
-          end
-        end
-        # Use system cp instead of FileUtils.cp to avoid sandbox issues
-        system "cp", "-f", template, dest.to_s
-      end
-    end
-
-    # 2. Configure MCP server
-    settings_path = claude_dir/"settings.json"
-    begin
-      settings = settings_path.exist? ? (JSON.parse(File.read(settings_path)) rescue {}) : {}
-      settings["mcpServers"] ||= {}
-      settings["mcpServers"]["centient"] = {
-        "type" => "stdio",
-        "command" => "#{HOMEBREW_PREFIX}/bin/centient",
-        "args" => []
-      }
-      File.write(settings_path, JSON.pretty_generate(settings) + "\n")
-    rescue Errno::EPERM, Errno::EACCES => e
-      opoo "Could not update #{settings_path}: #{e.message}"
-      opoo "Run: centient doctor --fix"
-    end
   end
 
   def caveats
     <<~EOS
-      Centient installed and configured!
+      Centient installed!
 
-      RESTART CLAUDE CODE to activate.
+      Run this to complete setup:
+        centient doctor --fix
 
-      Commands installed to ~/.claude/commands/
-      MCP server added to ~/.claude/settings.json
+      This will:
+        - Install commands to ~/.claude/commands/
+        - Configure MCP server in ~/.claude/settings.json
 
-      To uninstall: centient uninstall
+      Then RESTART CLAUDE CODE to activate.
+
       To start memory server: brew services start centient
     EOS
   end
