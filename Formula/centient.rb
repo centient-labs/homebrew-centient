@@ -1,6 +1,8 @@
 # typed: false
 # frozen_string_literal: true
 
+require "json"
+
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
@@ -29,7 +31,6 @@ class Centient < Formula
       # Create required library symlinks from pg-symlinks.json
       symlinks_file = share/"centient"/"postgres"/"pg-symlinks.json"
       if File.exist?(symlinks_file)
-        require "json"
         symlinks = JSON.parse(File.read(symlinks_file))
         symlinks.each do |link|
           # Paths in JSON are like "native/lib/..." but we installed to "lib/..."
@@ -108,8 +109,7 @@ class Centient < Formula
       "args" => []
     }
     claude_dir.mkpath
-    settings_path.write(JSON.pretty_generate(settings) + "
-")
+    settings_path.write(JSON.pretty_generate(settings) + "\n")
   end
 
   def caveats
