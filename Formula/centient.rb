@@ -4,7 +4,7 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.5.0"
+  version "0.5.1"
   # license - TBD
 
   # Currently only macOS ARM64 (Apple Silicon) is supported
@@ -13,7 +13,7 @@ class Centient < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "43148b5d380e7fab9dfb5fae493ae555bc3f3af87b2e661a6ac4c738980191d6"
+  sha256 "e855042d7b460c0a763b7c4a34e0e2bb2757f3d1c6bbcdc3258e84887ae1bdf2"
 
   def install
     bin.install "centient"
@@ -108,7 +108,8 @@ class Centient < Formula
       "args" => []
     }
     claude_dir.mkpath
-    settings_path.write(JSON.pretty_generate(settings) + "\n")
+    settings_path.write(JSON.pretty_generate(settings) + "
+")
   end
 
   def caveats
