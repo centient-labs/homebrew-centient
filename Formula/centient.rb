@@ -4,13 +4,13 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.5.0"
+  version "0.4.0"
   # license - TBD
 
   on_macos do
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-      sha256 "b7d54fe2f5639790073159d55c9f1e9f75491bedc2644983f06296a0f6dc5ee3"
+      sha256 "aeb80ded0f65dbfe63e5e370d5a880801ea42e255856b7de92ce71deef17e35e"
     end
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-x64.tar.gz"
@@ -110,7 +110,7 @@ class Centient < Formula
 
     # 2. Configure MCP server
     settings_path = claude_dir/"settings.json"
-    settings = settings_path.exist? ? JSON.parse(settings_path.read) rescue {} : {}
+    settings = settings_path.exist? ? (JSON.parse(settings_path.read) rescue {}) : {}
     settings["mcpServers"] ||= {}
     settings["mcpServers"]["centient"] = {
       "type" => "stdio",
