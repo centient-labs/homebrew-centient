@@ -10,7 +10,7 @@ class Centient < Formula
   on_macos do
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-      sha256 "aeb80ded0f65dbfe63e5e370d5a880801ea42e255856b7de92ce71deef17e35e"
+      sha256 "43148b5d380e7fab9dfb5fae493ae555bc3f3af87b2e661a6ac4c738980191d6"
     end
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-x64.tar.gz"
@@ -118,7 +118,8 @@ class Centient < Formula
       "args" => []
     }
     claude_dir.mkpath
-    settings_path.write(JSON.pretty_generate(settings) + "\n")
+    settings_path.write(JSON.pretty_generate(settings) + "
+")
   end
 
   def caveats
