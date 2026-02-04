@@ -46,11 +46,10 @@ class Centient < Formula
     end
 
     # Install ONNX Runtime for local embeddings (Transformers.js)
-    if File.directory?("onnxruntime")
-      (share/"centient"/"onnxruntime").install Dir["onnxruntime/*"]
-      Dir["onnxruntime/*.dylib"].each do |f|
-        cp f, bin
-      end
+    # Structure: onnx/napi-v3/{platform}/{arch}/ to match onnx-resolver.ts search paths
+    if File.directory?("onnx")
+      # Install next to binary so onnx-resolver.ts finds it at {execDir}/onnx/...
+      (bin/"onnx").install Dir["onnx/*"]
     end
 
     # Install Sharp for image processing (required by transformers.js)
