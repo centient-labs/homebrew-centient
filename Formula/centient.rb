@@ -6,7 +6,7 @@ require "json"
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.11.0"
+  version "0.11.1"
   # license - TBD
 
   # Currently only macOS ARM64 (Apple Silicon) is supported
@@ -15,7 +15,7 @@ class Centient < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "82589f23b1e87711346a047049b52a61e552f16a999a4c7f8cef2cc560af487a"
+  sha256 "44bebf729911258dafeb67095e4bf46384f26dca7de2f6b18ff8116d3f71958b"
 
   def install
     bin.install "centient"
@@ -52,13 +52,8 @@ class Centient < Formula
       (bin/"onnx").install Dir["onnx/*"]
     end
 
-    # Install Sharp for image processing (required by transformers.js)
-    if File.directory?("sharp")
-      (share/"centient"/"sharp").install Dir["sharp/*"]
-      Dir["sharp/*.dylib"].each do |f|
-        cp f, bin
-      end
-    end
+    # Sharp is shimmed in the binary - no native files needed
+    # Text embeddings (EmbeddingGemma) work without image processing
 
     # Install centient-web and its static files if present
     if File.exist?("centient-web")
@@ -79,20 +74,21 @@ class Centient < Formula
   end
 
   def caveats
-    <<~EOS
-      Centient installed!
+    if Dir.exist?(var/"engram"/"data")
+      <<~EOS
+        Upgrade complete! Run:
+          centient update
 
-      Run this to complete setup:
-        centient doctor --fix
+        Then restart Claude Code for changes to take effect.
+      EOS
+    else
+      <<~EOS
+        Welcome to Centient! To get started, run:
+          centient setup
 
-      This will:
-        - Install commands to ~/.claude/commands/
-        - Configure MCP server in ~/.claude/settings.json
-
-      Then RESTART CLAUDE CODE to activate.
-
-      To start memory server: brew services start centient
-    EOS
+        Then restart Claude Code for changes to take effect.
+      EOS
+    end
   end
 
   service do
