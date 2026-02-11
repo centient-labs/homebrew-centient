@@ -6,7 +6,7 @@ require "json"
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.11.1"
+  version "0.11.2"
   # license - TBD
 
   # Currently only macOS ARM64 (Apple Silicon) is supported
@@ -15,7 +15,7 @@ class Centient < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "44bebf729911258dafeb67095e4bf46384f26dca7de2f6b18ff8116d3f71958b"
+  sha256 "c13e413d4e5a73436428a1e45768d9115efda36eefdcfd073a39710e0e268080"
 
   def install
     bin.install "centient"
