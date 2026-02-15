@@ -6,7 +6,7 @@ require "json"
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.11.2"
+  version "0.12.0"
   # license - TBD
 
   # Currently only macOS ARM64 (Apple Silicon) is supported
@@ -15,7 +15,7 @@ class Centient < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "c13e413d4e5a73436428a1e45768d9115efda36eefdcfd073a39710e0e268080"
+  sha256 "f3250fb7868103ba4fa23f5d6cadf2dcdb75fb060ea408ecd3fdee99c37cd231"
 
   def install
     bin.install "centient"
@@ -63,9 +63,14 @@ class Centient < Formula
       (share/"centient"/"centient-web-dist").install Dir["centient-web-dist/*"]
     end
 
-    # Install command templates to share directory (installed to ~/.claude by centient doctor)
+    # Install command templates to share directory (installed to ~/.claude by centient setup)
     if File.directory?("templates/commands")
       (share/"centient"/"templates"/"commands").install Dir["templates/commands/*.md"]
+    end
+
+    # Install crucible command templates
+    if File.directory?("templates/crucible-commands")
+      (share/"centient"/"templates"/"crucible-commands").install Dir["templates/crucible-commands/*.md"]
     end
   end
 
