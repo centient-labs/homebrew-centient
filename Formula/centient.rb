@@ -6,7 +6,7 @@ require "json"
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code with local memory"
   homepage "https://github.com/centient-labs/centient"
-  version "0.13.3"
+  version "0.14.0"
   # license - TBD
 
   # Currently only macOS ARM64 (Apple Silicon) is supported
@@ -15,11 +15,11 @@ class Centient < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "ab8607af546e5351bdfe31069b4ba0e730f1f4cc993c9ed85e2e098dd6066c9e"
+  sha256 "4b6bab0f80d18b56b3888e969355e7cde0a47aa4537752c59febecc7804b9099"
 
   def install
     bin.install "centient"
-    bin.install "engram-local"
+    bin.install "engram"
 
     # Install embedded PostgreSQL binaries
     if File.directory?("postgres")
@@ -97,15 +97,15 @@ class Centient < Formula
   end
 
   service do
-    run [opt_bin/"engram-local", "start", "--foreground"]
+    run [opt_bin/"engram", "start", "--foreground"]
     keep_alive true
     working_dir var/"engram"
-    log_path var/"log/engram-local.log"
-    error_log_path var/"log/engram-local.log"
+    log_path var/"log/engram.log"
+    error_log_path var/"log/engram.log"
   end
 
   test do
     assert_match version.to_s, shell_output("#{bin}/centient --version")
-    assert_match version.to_s, shell_output("#{bin}/engram-local --version")
+    assert_match version.to_s, shell_output("#{bin}/engram --version")
   end
 end
