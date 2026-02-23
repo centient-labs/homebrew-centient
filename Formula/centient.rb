@@ -15,7 +15,7 @@ class Centient < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "97682759002b5a057c04d0b2b52dad61a92b59209a764b55f200361b1495e51f"
+  sha256 "88fe0e987b7477673dacd9ffe99309c7c6a16136c4f960e228673c6991cf70c0"
 
   def install
     bin.install "centient"
