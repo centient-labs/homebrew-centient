@@ -6,7 +6,7 @@ require "json"
 class CentientATbeta < Formula
   desc "Context engineering MCP server for Claude Code (beta channel)"
   homepage "https://github.com/centient-labs/centient"
-  version "0.0.0-beta.0"
+  version "0.22.0-beta.1"
   # license - TBD
 
   # Currently only macOS ARM64 (Apple Silicon) is supported
@@ -14,7 +14,7 @@ class CentientATbeta < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+  sha256 "4bb47d9a62915013cf72a7b4a77ac8f513aa3b843437c1e566e368f2501c2c46"
 
   conflicts_with "centient", because: "centient and centient@beta install conflicting binaries"
   conflicts_with "centient@alpha", because: "centient@beta and centient@alpha install conflicting binaries"
@@ -88,6 +88,7 @@ class CentientATbeta < Formula
       Data isolation: beta uses separate storage to protect your stable data.
         Data directory: ~/.engram-beta
         API port:       3150
+        Web UI port:    3151
         PostgreSQL:     5450
 
       To get started:
@@ -112,7 +113,8 @@ class CentientATbeta < Formula
     error_log_path var/"log/engram-beta.log"
     environment_variables ENGRAM_HOME: "#{Dir.home}/.engram-beta",
                           ENGRAM_PORT: "3150",
-                          ENGRAM_PG_PORT: "5450"
+                          ENGRAM_PG_PORT: "5450",
+                          CENTIENT_WEB_PORT: "3151"
   end
 
   test do
