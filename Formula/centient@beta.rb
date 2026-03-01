@@ -14,7 +14,7 @@ class CentientATBeta < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "182a418d74c6921cc1c304663aea7308cfcebf2435e55133c044df2d88a1a862"
+  sha256 "3c0b74208b26f40da0bfc4e85991346acbad031bcee833597c2b73960d5b33d1"
 
   def install
     # Install binaries to libexec (not bin) to avoid conflicts with stable
