@@ -3,10 +3,10 @@
 
 require "json"
 
-class CentientATbeta < Formula
+class CentientATBeta < Formula
   desc "Context engineering MCP server for Claude Code (beta channel)"
   homepage "https://github.com/centient-labs/centient"
-  version "0.22.0-beta.1"
+  version "0.22.0-beta.2"
   # license - TBD
 
   # Currently only macOS ARM64 (Apple Silicon) is supported
@@ -14,14 +14,12 @@ class CentientATbeta < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "0582d307fa6127fd1cfa165cb80e6d0da454592f3da3afb4fec2182cb66178c1"
-
-  conflicts_with "centient", because: "centient and centient@beta install conflicting binaries"
-  conflicts_with "centient@alpha", because: "centient@beta and centient@alpha install conflicting binaries"
+  sha256 "182a418d74c6921cc1c304663aea7308cfcebf2435e55133c044df2d88a1a862"
 
   def install
-    bin.install "centient"
-    bin.install "engram"
+    # Install binaries to libexec (not bin) to avoid conflicts with stable
+    libexec.install "centient"
+    libexec.install "engram"
 
     # Install embedded PostgreSQL binaries
     if File.directory?("postgres")
@@ -53,14 +51,14 @@ class CentientATbeta < Formula
       end
     end
 
-    # Install ONNX Runtime for local embeddings (Transformers.js)
+    # Install ONNX Runtime next to binaries in libexec (sibling lookup)
     if File.directory?("onnx")
-      (bin/"onnx").install Dir["onnx/*"]
+      (libexec/"onnx").install Dir["onnx/*"]
     end
 
-    # Install centient-web and its static files if present
+    # Install centient-web to libexec
     if File.exist?("centient-web")
-      bin.install "centient-web"
+      libexec.install "centient-web"
     end
     if File.directory?("centient-web-dist")
       (share/"centient-beta"/"centient-web-dist").install Dir["centient-web-dist/*"]
@@ -75,6 +73,30 @@ class CentientATbeta < Formula
     if File.directory?("templates/crucible-commands")
       (share/"centient-beta"/"templates"/"crucible-commands").install Dir["templates/crucible-commands/*.md"]
     end
+
+    # Create suffixed wrapper scripts in bin/
+    env_vars = {
+      "ENGRAM_HOME" => "~/.engram-beta",
+      "ENGRAM_PORT" => "3150",
+      "ENGRAM_LOCAL_PORT" => "3150",
+      "ENGRAM_PG_PORT" => "5450",
+      "CENTIENT_WEB_PORT" => "3151",
+      "CENTIENT_SHARE_DIR" => "#{share}/centient-beta",
+      "CENTIENT_BINARY_NAME" => "centient-beta",
+      "CENTIENT_CHANNEL" => "beta",
+    }
+
+    env_block = env_vars.map { |k, v| "export #{k}=\"#{v}\"" }.join("\n")
+
+    %w[centient engram centient-web].each do |binary|
+      next unless File.exist?(libexec/binary)
+      (bin/"#{binary}-beta").write <<~BASH
+        #!/bin/bash
+        #{env_block}
+        exec "#{libexec}/#{binary}" "$@"
+      BASH
+      chmod 0755, bin/"#{binary}-beta"
+    end
   end
 
   def post_install
@@ -83,7 +105,12 @@ class CentientATbeta < Formula
 
   def caveats
     <<~EOS
-      Centient BETA channel installed.
+      Centient BETA channel installed (coexists with stable).
+
+      Binaries are suffixed to avoid conflicts:
+        centient-beta        (instead of centient)
+        engram-beta          (instead of engram)
+        centient-web-beta    (instead of centient-web)
 
       Data isolation: beta uses separate storage to protect your stable data.
         Data directory: ~/.engram-beta
@@ -92,33 +119,34 @@ class CentientATbeta < Formula
         PostgreSQL:     5450
 
       To get started:
-        ENGRAM_HOME=~/.engram-beta ENGRAM_PORT=3150 ENGRAM_PG_PORT=5450 centient setup
+        centient-beta setup
 
       To seed data from your stable install:
         cp -r ~/.engram/data ~/.engram-beta/data
 
       WARNING: Beta releases may include irreversible database migrations.
       Never copy beta data back to your stable install.
-
-      Switch back to stable:
-        brew uninstall centient@beta && brew install centient
     EOS
   end
 
   service do
-    run [opt_bin/"engram", "start", "--foreground"]
+    run [opt_libexec/"engram", "start", "--foreground"]
     keep_alive true
     working_dir var/"engram-beta"
     log_path var/"log/engram-beta.log"
     error_log_path var/"log/engram-beta.log"
     environment_variables ENGRAM_HOME: "#{Dir.home}/.engram-beta",
                           ENGRAM_PORT: "3150",
+                          ENGRAM_LOCAL_PORT: "3150",
                           ENGRAM_PG_PORT: "5450",
-                          CENTIENT_WEB_PORT: "3151"
+                          CENTIENT_WEB_PORT: "3151",
+                          CENTIENT_SHARE_DIR: "#{HOMEBREW_PREFIX}/share/centient-beta",
+                          CENTIENT_BINARY_NAME: "centient-beta",
+                          CENTIENT_CHANNEL: "beta"
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/centient --version")
-    assert_match(/\d+\.\d+\.\d+/, shell_output("#{bin}/engram --version"))
+    assert_match version.to_s, shell_output("#{bin}/centient-beta --version")
+    assert_match(/\d+\.\d+\.\d+/, shell_output("#{bin}/engram-beta --version"))
   end
 end
