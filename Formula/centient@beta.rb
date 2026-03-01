@@ -14,7 +14,7 @@ class CentientATbeta < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "4bb47d9a62915013cf72a7b4a77ac8f513aa3b843437c1e566e368f2501c2c46"
+  sha256 "0582d307fa6127fd1cfa165cb80e6d0da454592f3da3afb4fec2182cb66178c1"
 
   conflicts_with "centient", because: "centient and centient@beta install conflicting binaries"
   conflicts_with "centient@alpha", because: "centient@beta and centient@alpha install conflicting binaries"
