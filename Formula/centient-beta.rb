@@ -6,7 +6,7 @@ require "json"
 class CentientBeta < Formula
   desc "Context engineering MCP server for Claude Code (beta channel)"
   homepage "https://github.com/centient-labs/centient"
-  version "0.16.0-beta.9"
+  version "0.16.0-beta.10"
   # license - TBD
 
   # Currently only macOS ARM64 (Apple Silicon) is supported
@@ -14,7 +14,7 @@ class CentientBeta < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "9f0073f0bd2ff0951917a86573937b4fbee67f5b8ddc9c5b5e02602edf9c1704"
+  sha256 "58d768d4057e90491869ab78ad00b6748a8f00cc830045d4c073343e7d1f8a4e"
 
   def install
     # Install binaries to libexec (not bin) to avoid conflicts with stable
