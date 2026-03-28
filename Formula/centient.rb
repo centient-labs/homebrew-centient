@@ -92,7 +92,7 @@ class Centient < Formula
 
       Pre-release channels available:
         brew install centient-labs/centient/centient-beta   # beta/RC releases
-        brew install centient-labs/centient/centient-alpha  # alpha/dev releases
+        brew install centient-labs/centient/centient-dev    # dev releases
       See: https://github.com/centient-labs/centient/blob/main/docs/guides/CHANNELS.md
     EOS
 
