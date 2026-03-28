@@ -13,12 +13,12 @@ class CentientBeta < Formula
   depends_on arch: :arm64
 
   # Centient MCP server binary + command templates
-  url "https://github.com/centient-labs/centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
+  url "https://github.com/centient-labs/homebrew-centient/releases/download/centient-v#{version}/centient-macos-arm64.tar.gz"
   sha256 "PLACEHOLDER_CENTIENT_BETA_SHA256"
 
   # Engram memory daemon + PostgreSQL + pgvector + ONNX + web UI
   resource "engram" do
-    url "https://github.com/centient-labs/engram-server/releases/download/v0.22.0/engram-macos-arm64.tar.gz"
+    url "https://github.com/centient-labs/homebrew-centient/releases/download/engram-v0.22.0/engram-macos-arm64.tar.gz"
     sha256 "PLACEHOLDER_ENGRAM_SHA256"
   end
 
