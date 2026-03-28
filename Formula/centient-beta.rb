@@ -9,69 +9,75 @@ class CentientBeta < Formula
   version "0.23.0-beta.2"
   # license - TBD
 
-  # Currently only macOS ARM64 (Apple Silicon) is supported
   depends_on :macos
   depends_on arch: :arm64
 
-  url "https://github.com/centient-labs/homebrew-centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "bb8824fc8dc2babf2670c8fc347bb14ad62f8bbbeda83860a3267b50ebb1c1f8"
+  # Centient MCP server binary + command templates
+  url "https://github.com/centient-labs/centient/releases/download/v#{version}/centient-macos-arm64.tar.gz"
+  sha256 "PLACEHOLDER_CENTIENT_BETA_SHA256"
+
+  # Engram memory daemon + PostgreSQL + pgvector + ONNX + web UI
+  resource "engram" do
+    url "https://github.com/centient-labs/engram-server/releases/download/v0.22.0/engram-macos-arm64.tar.gz"
+    sha256 "PLACEHOLDER_ENGRAM_SHA256"
+  end
 
   def install
-    # Install binaries to libexec (not bin) to avoid conflicts with stable
+    # Install centient binary to libexec (not bin) to avoid conflicts with stable
     libexec.install "centient"
-    libexec.install "engram"
-
-    # Install embedded PostgreSQL binaries
-    if File.directory?("postgres")
-      (share/"centient-beta"/"postgres").install Dir["postgres/*"]
-      # Make binaries executable
-      Dir[share/"centient-beta"/"postgres"/"bin"/"*"].each do |f|
-        chmod 0755, f if File.file?(f)
-      end
-      # Create required library symlinks from pg-symlinks.json
-      symlinks_file = share/"centient-beta"/"postgres"/"pg-symlinks.json"
-      if File.exist?(symlinks_file)
-        begin
-          symlinks = JSON.parse(File.read(symlinks_file))
-          symlinks.each do |link|
-            source = link["source"].sub("native/", "")
-            target = link["target"].sub("native/", "")
-            # Validate paths don't escape postgres directory
-            next if source.include?("..") || target.include?("..")
-            next if source.start_with?("/") || target.start_with?("/")
-            source_path = share/"centient-beta"/"postgres"/source
-            target_path = share/"centient-beta"/"postgres"/target
-            if File.exist?(source_path) && !File.exist?(target_path)
-              ln_s source_path.basename, target_path
-            end
-          end
-        rescue JSON::ParserError => e
-          opoo "Failed to parse pg-symlinks.json: #{e.message}"
-        end
-      end
-    end
-
-    # Install ONNX Runtime next to binaries in libexec (sibling lookup)
-    if File.directory?("onnx")
-      (libexec/"onnx").install Dir["onnx/*"]
-    end
-
-    # Install centient-web to libexec
-    if File.exist?("centient-web")
-      libexec.install "centient-web"
-    end
-    if File.directory?("centient-web-dist")
-      (share/"centient-beta"/"centient-web-dist").install Dir["centient-web-dist/*"]
-    end
 
     # Install command templates
     if File.directory?("templates/commands")
       (share/"centient-beta"/"templates"/"commands").install Dir["templates/commands/*.md"]
     end
 
-    # Install crucible command templates
     if File.directory?("templates/crucible-commands")
       (share/"centient-beta"/"templates"/"crucible-commands").install Dir["templates/crucible-commands/*.md"]
+    end
+
+    # Install engram components (from resource)
+    resource("engram").stage do
+      libexec.install "engram"
+
+      # Install embedded PostgreSQL binaries
+      if File.directory?("postgres")
+        (share/"centient-beta"/"postgres").install Dir["postgres/*"]
+        Dir[share/"centient-beta"/"postgres"/"bin"/"*"].each do |f|
+          chmod 0755, f if File.file?(f)
+        end
+        symlinks_file = share/"centient-beta"/"postgres"/"pg-symlinks.json"
+        if File.exist?(symlinks_file)
+          begin
+            symlinks = JSON.parse(File.read(symlinks_file))
+            symlinks.each do |link|
+              source = link["source"].sub("native/", "")
+              target = link["target"].sub("native/", "")
+              next if source.include?("..") || target.include?("..")
+              next if source.start_with?("/") || target.start_with?("/")
+              source_path = share/"centient-beta"/"postgres"/source
+              target_path = share/"centient-beta"/"postgres"/target
+              if File.exist?(source_path) && !File.exist?(target_path)
+                ln_s source_path.basename, target_path
+              end
+            end
+          rescue JSON::ParserError => e
+            opoo "Failed to parse pg-symlinks.json: #{e.message}"
+          end
+        end
+      end
+
+      # Install ONNX Runtime next to binaries in libexec (sibling lookup)
+      if File.directory?("onnx")
+        (libexec/"onnx").install Dir["onnx/*"]
+      end
+
+      # Install engram-web to libexec
+      if File.exist?("engram-web")
+        libexec.install "engram-web" => "centient-web"
+      end
+      if File.directory?("engram-web-dist")
+        (share/"centient-beta"/"centient-web-dist").install Dir["engram-web-dist/*"]
+      end
     end
 
     # Create suffixed wrapper scripts in bin/
