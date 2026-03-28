@@ -6,7 +6,7 @@ require "json"
 class CentientDev < Formula
   desc "Context engineering MCP server for Claude Code (dev channel)"
   homepage "https://github.com/centient-labs/centient"
-  version "0.21.0-dev.1"
+  version "0.22.0-dev.1"
   # license - TBD
 
   depends_on :macos
