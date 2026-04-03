@@ -18,8 +18,8 @@ class Centient < Formula
 
   # Engram memory daemon + PostgreSQL + pgvector + ONNX + web UI
   resource "engram" do
-    url "https://github.com/centient-labs/homebrew-centient/releases/download/engram-v0.22.0/engram-macos-arm64.tar.gz"
-    sha256 "PLACEHOLDER_ENGRAM_SHA256"
+    url "https://github.com/centient-labs/homebrew-centient/releases/download/engram-v0.22.0-dev.1/engram-macos-arm64.tar.gz"
+    sha256 "3ea4c0aef3273633ed5bb6fb875b3fbfb1ac423745852a047a32207e42c0db03"
   end
 
   def install
