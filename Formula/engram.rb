@@ -17,6 +17,10 @@ class Engram < Formula
 
   def install
     bin.install "engram" => "engram-local"
+    # Backwards-compat symlink: centient's EngramLocalManager and doctor historically
+    # looked for "engram" in PATH. Also replaces any stale symlink left by the old
+    # centient formula that used to bundle engram in its own cellar.
+    bin.install_symlink "engram-local" => "engram"
 
     # Install embedded PostgreSQL binaries
     if File.directory?("postgres")
