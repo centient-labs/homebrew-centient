@@ -15,7 +15,7 @@ class Centient < Formula
   depends_on "centient-labs/centient/engram" => :recommended
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/centient-v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "63527fd872db8ee9e0d57f450af20e9dcc8abe693a71667b50a1c82bbb935cd3"
+  sha256 "fcfdbd97d7b63280037684feaaef9506add67738dbe299f4bdcf0ce41f64f397"
 
   def install
     bin.install "centient"
