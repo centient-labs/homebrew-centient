@@ -8,7 +8,7 @@ class Maintainer < Formula
   depends_on "centient-labs/centient/engram" => :recommended
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/maintainer-v#{version}/maintainer-macos-arm64.tar.gz"
-  sha256 "7499139c593be6fb69e6b8d462a3f2b3d7c4fa3d3c80b8c62ff938fb7c74783f"
+  sha256 "07f685a90c4739f0418d6e22c69ac3fb05c78d0776af4fc22bb886c6267d731e"
 
   def install
     bin.install "maintainer"
