@@ -6,14 +6,14 @@ require "json"
 class Engram < Formula
   desc "Local memory daemon for AI agents — embedded PostgreSQL + pgvector + ONNX embeddings"
   homepage "https://github.com/centient-labs/engram-server"
-  version "0.22.2"
+  version "0.22.4"
   # license - TBD
 
   depends_on :macos
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/engram-v#{version}/engram-macos-arm64.tar.gz"
-  sha256 "6ba5ab77994342006845e135401795136698dc7b0f6bfd9073380b58d63942a2"
+  sha256 "fb10b33a589fd8e11b197e18657f4554c7bfaaa41a725b0e261fe2fac3f4cd60"
 
   def install
     bin.install "engram" => "engram-local"
