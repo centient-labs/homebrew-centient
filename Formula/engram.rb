@@ -13,7 +13,7 @@ class Engram < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/engram-v#{version}/engram-macos-arm64.tar.gz"
-  sha256 "9e0d09932192bff4caeb9a8f956dbb9fbf1bf0b3df55d6bb3e20e7cace918870"
+  sha256 "af77ac9bde6a72301222381c3d23da9e4c4626e86ba19524859e626729f508d2"
 
   def install
     bin.install "engram" => "engram-local"
