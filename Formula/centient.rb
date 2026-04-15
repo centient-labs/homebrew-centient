@@ -4,7 +4,7 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code"
   homepage "https://github.com/centient-labs/centient"
-  version "0.26.12"
+  version "0.26.13"
   # license - TBD
 
   depends_on :macos
@@ -15,7 +15,7 @@ class Centient < Formula
   depends_on "centient-labs/centient/engram" => :recommended
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/centient-v#{version}/centient-macos-arm64.tar.gz"
-  sha256 "b3ff4f5b2f71c2a771ee00642b45b6661ce91e8af44de5fb9480446a8f3035b4"
+  sha256 "2b461b68962e4a5d83f788171d49bbf3c03385544a97c2a53eef92c536213cdb"
 
   def install
     bin.install "centient"
