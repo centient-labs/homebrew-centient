@@ -16,11 +16,16 @@ class Engram < Formula
   sha256 "e1d0079719f53ebb75caff9585ab1679d3bba52fbcd2ce182b38b01892026fb5"
 
   def install
-    bin.install "engram" => "engram-local"
-    # Backwards-compat symlink: centient's EngramLocalManager and doctor historically
-    # looked for "engram" in PATH. Also replaces any stale symlink left by the old
-    # centient formula that used to bundle engram in its own cellar.
-    bin.install_symlink "engram-local" => "engram"
+    # Install the real binary under the canonical name "engram". The
+    # `engram-local` alias is kept as a symlink for backwards-compat with
+    # centient's EngramLocalManager and doctor, which historically looked
+    # for `engram-local` in PATH. Installing the other way around (real
+    # file = engram-local, symlink = engram) caused `engram start` to
+    # detach children with `process.execPath` resolving to the real path
+    # — so `ps` showed `engram-local start -f`, which obscured which
+    # component was running and made per-binary greps confusing.
+    bin.install "engram"
+    bin.install_symlink "engram" => "engram-local"
 
     # Install embedded PostgreSQL binaries
     if File.directory?("postgres")
