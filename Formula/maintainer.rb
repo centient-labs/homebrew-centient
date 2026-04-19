@@ -1,14 +1,14 @@
 class Maintainer < Formula
   desc "Automated PR review pipeline for centient-labs"
   homepage "https://github.com/centient-labs/maintainer"
-  version "0.8.1"
+  version "0.8.2"
 
   depends_on :macos
   depends_on arch: :arm64
   depends_on "centient-labs/centient/engram" => :recommended
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/maintainer-v#{version}/maintainer-macos-arm64.tar.gz"
-  sha256 "b8714b081d91f14171f4d578ed5b2eb704c7b971d3f0e4b15568d0c3d93edd9c"
+  sha256 "c632e3b224bf55f7e645e9b5b4b69251a378f31c591f1eb9318a0bac70c43ccf"
 
   def install
     bin.install "maintainer"
