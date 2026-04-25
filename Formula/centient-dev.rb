@@ -71,12 +71,15 @@ class CentientDev < Formula
         (libexec/"onnx").install Dir["onnx/*"]
       end
 
-      # Install engram-web to libexec
+      # Install engram-web to libexec under its canonical name so the engram
+      # daemon's sibling lookup (`join(dirname(execPath), "engram-web")`)
+      # finds it. Renaming this to `centient-web` was the root cause of the
+      # dashboard not starting on dev — see homebrew-centient#11.
       if File.exist?("engram-web")
-        libexec.install "engram-web" => "centient-web"
+        libexec.install "engram-web"
       end
       if File.directory?("engram-web-dist")
-        (share/"centient-dev"/"centient-web-dist").install Dir["engram-web-dist/*"]
+        (share/"centient-dev"/"engram-web-dist").install Dir["engram-web-dist/*"]
       end
     end
 
@@ -94,7 +97,9 @@ class CentientDev < Formula
 
     env_block = env_vars.map { |k, v| "export #{k}=\"#{v}\"" }.join("\n")
 
-    %w[centient engram centient-web].each do |binary|
+    # Direct (name-preserving) wrappers: bin/centient-dev -> libexec/centient,
+    # bin/engram-dev -> libexec/engram.
+    %w[centient engram].each do |binary|
       next unless File.exist?(libexec/binary)
       (bin/"#{binary}-dev").write <<~BASH
         #!/bin/bash
@@ -102,6 +107,18 @@ class CentientDev < Formula
         exec "#{libexec}/#{binary}" "$@"
       BASH
       chmod 0755, bin/"#{binary}-dev"
+    end
+
+    # Web SPA wrapper: keep the user-facing name `centient-web-dev` for
+    # backward compatibility (caveats and existing scripts), but exec the
+    # canonically-named binary in libexec so engram's sibling lookup works.
+    if File.exist?(libexec/"engram-web")
+      (bin/"centient-web-dev").write <<~BASH
+        #!/bin/bash
+        #{env_block}
+        exec "#{libexec}/engram-web" "$@"
+      BASH
+      chmod 0755, bin/"centient-web-dev"
     end
   end
 
