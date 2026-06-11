@@ -1,9 +1,22 @@
 {
   "$comment": "Tracks compatibility between centient and engram releases. Read by centient doctor and brew formulas.",
   "centient": {
-    "0.26.25": { "engram": ">=0.21.0" },
-    "0.26.0": { "engram": ">=0.21.0" },
-    "0.25.5": { "engram": ">=0.21.0" },
-    "0.25.0": { "engram": ">=0.21.0" }
+    "0.26.25": {
+      "engram": ">=0.21.0"
+    },
+    "0.26.0": {
+      "engram": ">=0.21.0"
+    },
+    "0.25.5": {
+      "engram": ">=0.21.0"
+    },
+    "0.25.0": {
+      "engram": ">=0.21.0"
+    }
+  },
+  "engram": {
+    "0.36.0": {
+      "centient": ">=0.25.0"
+    }
   }
 }
