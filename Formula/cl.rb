@@ -9,7 +9,7 @@ class Cl < Formula
   url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-v#{version}/cl-macos-arm64.tar.gz"
   # Placeholder until the first `make publish` from centient-labs/cli runs
   # update_formula with the real tarball checksum (cli#3 release flow).
-  sha256 "ab20d3293634901e61f8a2a98c7be6c4da5bb17ca4d42c1cbc939379b9d2a42f"
+  sha256 "30351985bae22f5cea06d42b5861eac723bf22ab86bfd515e02e4e56cba889d6"
 
   def install
     bin.install "cl"
