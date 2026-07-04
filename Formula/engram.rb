@@ -6,14 +6,14 @@ require "json"
 class Engram < Formula
   desc "Local memory daemon for AI agents — embedded PostgreSQL + pgvector + ONNX embeddings"
   homepage "https://github.com/centient-labs/engram-server"
-  version "0.47.0"
+  version "0.48.0"
   # license - TBD
 
   depends_on :macos
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/engram-v#{version}/engram-macos-arm64.tar.gz"
-  sha256 "001e6e9c6962ad3e385fe3081b4145c3d4bdaaf9f1cc7ef0ef2d533db0e6ed91"
+  sha256 "106d89f1c270f9ee4a81b00eb3608cfc533c83d9f5db4658b10b50c0148181e2"
 
   def install
     # Install the real binary under the canonical name "engram". The
@@ -63,6 +63,13 @@ class Engram < Formula
     # Install engram-web and static files
     if File.exist?("engram-web")
       bin.install "engram-web"
+    end
+    # engram-comms — third binary, ship-together (no separate formula).
+    # No ONNX bundle for comms (deliberate — comms does no embeddings);
+    # it shares engram's bundled PostgreSQL binaries at runtime via the
+    # same install-relative resolver (execDir/../share/<channel>/postgres).
+    if File.exist?("engram-comms")
+      bin.install "engram-comms"
     end
     if File.directory?("engram-web-dist")
       (share/"engram"/"engram-web-dist").install Dir["engram-web-dist/*"]
