@@ -11,14 +11,14 @@
 class Callboard < Formula
   desc "Persona-management flagship daemon — roster, deploy board, agent API + MCP"
   homepage "https://github.com/centient-labs/callboard"
-  version "0.2.0"
+  version "0.3.0"
   # license - TBD
 
   depends_on :macos
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/callboard-v#{version}/callboard-macos-arm64.tar.gz"
-  sha256 "a47d77f2b36672848d867b4050f031a0d84204c5a98205060e74b005f66f70d7"
+  sha256 "b480af42379bfc3efd66d30aa8841e2c055fc0a14994755619265eb0550339e9"
 
   def install
     # The binary is the server; the UI build is data in share/ (design D3).
