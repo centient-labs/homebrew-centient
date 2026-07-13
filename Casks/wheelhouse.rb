@@ -1,6 +1,6 @@
 cask "wheelhouse" do
-  version "0.2.0"
-  sha256 "5b819273ce882d22013bdd1cb1c08f443c7518c1ec235bfdb74746243fca16d1"
+  version "0.3.0"
+  sha256 "edc871c1caea211a5e30d804af399ba03eb73a639d71bc4bbc1044a12686eca2"
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/wheelhouse-v#{version}/Wheelhouse-macos-arm64.zip"
   name "Wheelhouse"
