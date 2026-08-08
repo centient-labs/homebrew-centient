@@ -1,4 +1,4 @@
-<!-- cl-sync src=9aaa1aeb -->
+<!-- cl-sync src=32b13a44 -->
 # Commit Procedures
 
 ## Commit Format
@@ -34,6 +34,25 @@ Define them in `commits-local.md` (the repo-specific sibling loaded alongside
 this file). Common patterns: monorepo package names, module names, or omit the
 scope for single-package repos.
 
+## Command Validator Hook Rules
+
+If the project uses a command-validator hook (`.claude/hooks/command-validator.sh`):
+
+- Commitlint enforces **all-lowercase subject lines** — the *entire* first line,
+  type, scope, and description alike (`fix(auth): add feature`, never
+  `Fix(auth): Add feature`). This is stricter than vanilla conventional commits,
+  which only lowercases the type; see "Commit Format" above — the org-wide rule,
+  the validator just front-runs it.
+- The validator rejects any bash command containing the word "format" — the match
+  is a context-blind substring check on the whole command string, so it trips on
+  prose too, including commit-message text. **In message text**, use a synonym:
+  "encoding", "shape", "structure", "layout". (The rule's original rationale is
+  not recorded anywhere in the tree — the validator's implementation is currently
+  missing, tracked in centient#446; until that resolves, treat the block as an
+  observed behavior to route around, not a policy to reason from.)
+- **In git flags**, synonyms don't apply — use the alternative flags instead:
+  `git log --oneline` or `git log --pretty=` rather than `git log --format=`.
+
 ## Pre-commit Checklist
 
 - [ ] Files staged (`git add <files>`)
@@ -60,15 +79,22 @@ scope for single-package repos.
 **Never push directly to `main`.** Branch protection enforces PR-only workflow
 on Tier A repos; even where it doesn't, treat direct-to-main as prohibited.
 
-**Prefer independent PRs — do not stack.** Branch **every** PR off `main`. If a PR
+**NEVER stack PRs** (operator rule, 2026-07-05 — no exceptions). Branch **every**
+PR off `main`; a PR whose base is another open PR's branch is forbidden. If a PR
 references another unmerged PR, still branch off `main` and note the dependency in
-the PR body — doc cross-references resolve once both land; do not branch one PR off
-another. Stack **only** for a true *content* dependency (your code cannot build or
-test without the other PR's code). When you must stack: the base merges first, then
-**rebase the child onto `main`** before merging it, and **never squash-merge or
-force-push a PR whose head is the base of an open child** — it rewrites the base's
-SHAs and strands the child, which is how a "merged" stacked PR can land its content
-on a dead branch instead of `main`.
+the PR body — doc cross-references resolve once both land. For a true *content*
+dependency (your code cannot build or test without the other PR's code), work
+**sequentially**: land the base PR first, pull `main`, then branch the dependent
+work from the updated `main`. The review-wait interval on the base PR is for other
+work (audits, next-lane planning), not for stacking.
+
+Why absolute: merging a stack in order silently loses work. GitHub merges each
+child into its *parent branch*, not `main` (bases are only retargeted if the
+parent branch is deleted on merge) — the child shows `MERGED` while its content
+never reaches `main` (see known-pitfalls "Stacked-PR merge trap"; this is exactly
+how wheelhouse #46/#47 were lost and had to be cherry-pick-recovered by #51 on
+2026-07-05). Enable **auto-delete head branches on merge** in repo settings as
+defense in depth — it is not a substitute for the rule.
 
 ## Anti-patterns
 

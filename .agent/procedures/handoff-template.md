@@ -1,8 +1,9 @@
-<!-- cl-sync src=14125a82 -->
+<!-- cl-sync src=4dd7c33d -->
 ---
 topic: <kebab-case-slug>
 date: YYYY-MM-DD
-author: <agent or operator name>
+author: <gh-login — resolve via gh api user --jq .login>
+author_name: <optional human/descriptive label, e.g. claude (workspace coordinator seat); null or delete if unused>
 engram_session: <sessionId passed to start_session_coordination, e.g. 2026-06-09-topic; null if MCP was unavailable>
 handoff_issue: <GitHub issue number for the handoff baton; null if --no-issue>
 predecessor: <previous handoff filename (repo-relative path) or null>
@@ -10,9 +11,11 @@ predecessor: <previous handoff filename (repo-relative path) or null>
 
 # Handoff: <one-line topic>
 
-<!-- Copy this file to docs/handoffs/YYYY-MM-DD-HANDOFF-topic.md and fill in.
+<!-- Copy this file to docs/handoffs/YYYY-MM-DD-HANDOFF-<author>-<topic>.md and fill in.
      (Date-first filename: dated docs sort chronologically in a directory
-     listing regardless of type.)
+     listing regardless of type. <author> is your gh login, lowercased.)
+     author: is the machine-read gh login (resolve with `gh api user --jq .login`);
+     author_name: is the optional human/descriptive label.
      The YAML frontmatter above is machine-read by session-start hooks and
      /cl-resume-session — fill every field; use null, not blank, when a
      field doesn't apply. handoff_issue is filled in AFTER the issue is
@@ -29,6 +32,20 @@ predecessor: <previous handoff filename (repo-relative path) or null>
 1. <action 1 — specific, with PR/issue/file references>
 2. <action 2>
 3. <action 3>
+
+## Program Design **(optional)**
+
+<!-- The reload payload: the types, function/method signatures, and intended
+     call-stack / file-tree diff for in-flight work — what a resuming seat reads
+     first to rebuild the design without re-reading the codebase. This is the
+     plan-gate's Program Design artifact (procedures/plan-gate.md) carried across
+     the baton; a seat wake is a full context reload, so signatures here are the
+     cheapest way to resume. Delete this section when the handoff carries no
+     in-flight design (a clean session-end with nothing mid-build). Scale it to
+     the work — a one-file fix needs no call-stack. -->
+
+- **Types / signatures:** <the function/method signatures and types the next seat resumes from>
+- **Call-stack / file-tree diff:** <the intended shape — which files change, how the calls flow>
 
 ## What was accomplished **(required)**
 

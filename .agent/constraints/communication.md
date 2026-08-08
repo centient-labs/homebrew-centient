@@ -1,4 +1,4 @@
-<!-- cl-sync src=b0d82f20 -->
+<!-- cl-sync src=d7242123 -->
 # Communication Constraints
 
 Style and tone directives that apply to every agent operating in
@@ -29,5 +29,21 @@ name the specific uncertainty ("I haven't tested this", "this is a guess
 based on the file structure, not the runtime behavior") rather than
 claiming honesty. Specific uncertainty is informative; generic hedging is
 not.
+
+## PR / issue references
+
+Always precede a PR or issue number with its repo name: `cli#107`,
+`workspace#236`, `synthpop#2` — never a bare `#107`. Applies everywhere an
+agent writes them: chat summaries, tables, commit messages, PR/issue bodies
+and comments, handoff batons, wakeup prompts, cycle logs.
+
+**Why:** agents routinely work many repos in one session. A bare number is
+ambiguous the moment two repos are in play, and it becomes wrong information
+when the text is read later from another repo's context (issues, batons, and
+engram notes all travel). Established in standards#75.
+
+**What to do instead:** repo-qualify at the point of writing, even when the
+repo feels obvious from context — `<repo>#<n>` within centient-labs, and
+`owner/repo#<n>` for anything outside the org (e.g. `Szermer/synthpop#48`).
 
 Repo-specific additions: see `communication-local.md` (loaded alongside this file).

@@ -1,4 +1,4 @@
-<!-- cl-sync src=65dcaf5d -->
+<!-- cl-sync src=5cbf8ac9 -->
 # Handoff Creation Procedure
 
 When and how to write a session handoff. A handoff is a single file that lets
@@ -28,16 +28,39 @@ Skip when:
 
 ## Where it goes
 
-`docs/handoffs/YYYY-MM-DD-HANDOFF-topic.md` (e.g.,
-`docs/handoffs/2026-05-09-HANDOFF-shepherd-system.md`).
+`docs/handoffs/YYYY-MM-DD-HANDOFF-<author>-<topic>.md` (e.g.,
+`docs/handoffs/2026-05-09-HANDOFF-owenjohnson-shepherd-system.md`).
 
-**Date-first, then the uppercase type token, then the kebab descriptor**
-(`<date>-<TYPE>-<descriptor>.md`). Date-first makes a directory of mixed
-dated docs (handoffs, audits, retros) sort chronologically in one listing;
-a type-first name only sorts within its own prefix. Legacy
-`HANDOFF-YYYY-MM-DD-topic.md` files remain readable (the kickoff procedure
-normalizes both forms when sorting) — `git mv` them to date-first when you
-next touch them.
+A baton's identity is **author + topic**. `<author>` is your GitHub login
+(resolve it with `gh api user --jq .login`), lowercased in the filename;
+`<topic>` is a kebab-case slug of the workstream. The author segment keeps
+two different people working the same repo from colliding on a same-day
+handoff; the topic segment keeps two concurrent sessions by the same person
+from colliding. The filename exists for uniqueness, date-sort, and
+glance-ability — it is not unambiguously re-splittable (author and topic are
+both hyphenated slugs), so the authoritative values live in frontmatter:
+`author:` is the exact gh login (machine-filterable), `author_name:` is the
+optional human/descriptive string. See toolkit ADR-002
+(`centient-labs/toolkit docs/adr/ADR-002-per-author-handoff-batons.md`) for
+why identity is author-keyed and why the earlier "seat" abstraction was
+rejected.
+
+**Never adopt a foreign baton.** Surfacing and resume filter to the viewer's
+own gh login. A baton authored by someone else stays visible as an open
+handoff issue, but another author's session must never auto-resume it or
+close it, and a foreign `auto_resume: true` is never honored — it is a
+signal to that author's next session, not to yours.
+
+**Date-first, then the uppercase type token, then the author and topic
+slugs** (`<date>-<TYPE>-<author>-<topic>.md`). Date-first makes a directory
+of mixed dated docs (handoffs, audits, retros) sort chronologically in one
+listing; a type-first name only sorts within its own prefix. Back-compat:
+legacy topic-only filenames (`YYYY-MM-DD-HANDOFF-<topic>.md`) and batons
+with missing-author frontmatter remain valid and surface to everyone —
+existing batons never become invisible, and there is no flag-day. Legacy
+`HANDOFF-YYYY-MM-DD-topic.md` files also remain readable (the kickoff
+procedure normalizes both forms when sorting) — `git mv` them to date-first
+when you next touch them.
 
 For workspace-meta repos without a `docs/` directory, a top-level `HANDOFF.md`
 is acceptable as a current-snapshot file — but rotate to `docs/handoffs/`
@@ -59,21 +82,50 @@ Minimum sections (see `handoff-template.md` for the fillable structure):
 
 1. Copy the template (creating `docs/handoffs/` if needed). Set the
    `topic` shell variable to a kebab-case slug of the workstream; the
-   snippet interpolates it into the destination filename. The sentinel
-   default refuses to proceed if you forget to edit, and `cp -n`
-   prevents silently overwriting a same-day handoff for the same topic.
+   snippet resolves your gh login as `author` and interpolates both into
+   the destination filename. The `gh` lookup itself is non-fatal (`|| true`
+   inside the substitution), so even under `set -euo pipefail` a failed
+   lookup reaches the empty-`author` guard, which aborts the subshell
+   with the specific remediation message; the sentinel default
+   refuses to proceed if you forget to edit `topic`, and an explicit
+   existence check refuses to overwrite a same-day handoff for the same
+   author + topic (re-run with a different topic if you hit that case).
+   The whole block is wrapped in `( ... )` so the `exit 1` aborts
+   only this subshell — never your interactive shell — even if you
+   paste the snippet into a working terminal. The trailing `|| { ... }`
+   surfaces subshell failure loudly so you do not silently advance to
+   the next step on a failed copy.
    ```bash
-   topic=REPLACE_ME    # <-- EDIT THIS to your kebab-case slug
-   if [ "$topic" = REPLACE_ME ] || [ -z "$topic" ]; then
-     echo "edit topic= to a kebab-case slug first" >&2
-     exit 1
-   fi
-   mkdir -p docs/handoffs && \
-     cp -n .agent/procedures/handoff-template.md \
-           "docs/handoffs/$(date +%Y-%m-%d)-HANDOFF-${topic}.md"
+   (
+     topic=REPLACE_ME    # <-- EDIT THIS to your kebab-case slug
+     if [ "$topic" = REPLACE_ME ] || [ -z "$topic" ]; then
+       echo "edit topic= to a kebab-case slug first" >&2
+       exit 1
+     fi
+     author=$({ gh api user --jq .login 2>/dev/null || true; } | tr '[:upper:]' '[:lower:]')
+     if [ -z "$author" ]; then
+       echo "could not resolve gh login (gh api user --jq .login) — authenticate gh first" >&2
+       exit 1
+     fi
+     dest="docs/handoffs/$(date +%Y-%m-%d)-HANDOFF-${author}-${topic}.md"
+     if [ -e "$dest" ]; then
+       echo "$dest already exists — choose a different topic slug" >&2
+       exit 1
+     fi
+     mkdir -p docs/handoffs && \
+       set -C && cat .agent/procedures/handoff-template.md > "$dest"
+   ) || { echo "handoff creation aborted — fix the issue above and re-run" >&2; false; }
    ```
-   `cp -n` exits non-zero without overwrite if the destination already
-   exists; re-run with a different `topic` if you hit that case.
+   The `[ -e "$dest" ]` existence check refuses with a clear message
+   if a same-day handoff for the same author + topic already exists; re-run
+   with a different `topic` if you hit that case. The creation step
+   itself is also no-clobber — `set -C` (noclobber, scoped to the
+   subshell) makes the `>` redirection fail if `$dest` appears
+   between the check and the write, so even that race cannot
+   overwrite an existing handoff.
+   (Previously this snippet used `cp -n` for the guard, but `cp -n`
+   silently exits 0 on macOS/Linux when the destination exists,
+   which would let the procedure start editing the wrong file.)
 2. **Fill the YAML frontmatter completely.** It is the machine-readable
    contract: session-start hooks and `/cl-resume-session` parse it instead
    of the prose. `engram_session` is the exact `sessionId` this session

@@ -1,4 +1,4 @@
-<!-- cl-sync src=1547b050 -->
+<!-- cl-sync src=28f0bcc8 -->
 # Plan-Gate Procedure
 
 **Non-trivial work requires a committed, approved plan before a code PR opens.**
@@ -31,8 +31,9 @@ an unwound wrong-direction build is not.
 
 ## What the plan must contain
 
-The plan carries the **crucible-plan shape** (the `/crucible-plan` skill already
-produces this; for smaller work, write the four fields by hand):
+The plan carries the **crucible-plan shape** plus a **Program Design** artifact
+(the `/crucible-plan` skill already produces the first four; for smaller work,
+write them by hand):
 
 1. **Objective** — what changes and why, in outcome terms. The success this
    delivers, not the diff.
@@ -43,6 +44,16 @@ produces this; for smaller work, write the four fields by hand):
    sources. Cite them; "have we solved this before?" answered, not skipped.
 4. **Success criteria** — how anyone confirms it works: the tests, the
    acceptance checks, the `make check` gate. Concrete and verifiable.
+5. **Program Design** — the types, the function/method signatures, and the
+   intended call-stack / file-tree diff, specified *before* implementation. It
+   is what the diff reviewer checks the code against most directly, and —
+   because a seat wake is a full context reload — the near-ideal baton payload:
+   a fresh seat resumes from the signatures instead of re-reading the codebase,
+   so this field is a reload primitive, not a planning nicety.
+   **Scale it to the change** — a one-file fix does not need a call-stack
+   diagram; a new module, a new surface, or a cross-cutting refactor does.
+   Specified before code, never back-filled to match a finished diff (see
+   Anti-patterns).
 
 ## Where the plan lives and who approves it
 
@@ -52,7 +63,7 @@ that fits the work:
 | Work size | Plan vehicle | Approver |
 |-----------|-------------|----------|
 | Substantial / multi-wave | `docs/plans/PLAN-<topic>.md` (or a `/crucible-plan` artifact), or a dedicated plan issue | operator, or mbot on the plan issue/doc |
-| Moderate non-trivial | the tracking issue's description, carrying the four fields | operator, or mbot on the issue |
+| Moderate non-trivial | the tracking issue's description, carrying the five fields | operator, or mbot on the issue |
 
 Approval happens **at the plan stage**, before the code PR opens — that is the
 whole point of the gate. The code PR then **references the approved plan** (link
@@ -61,7 +72,7 @@ rather than re-deriving intent from the diff.
 
 (*mbot* = the centient-labs maintainer review bot — the same bot that reviews
 code PRs reviews the plan issue/doc here; see the maintainer-agent docs in
-`support/standards`.)
+`20support/standards`.)
 
 ## Strictness — the default and the open operator call
 
@@ -101,7 +112,13 @@ enforcement — don't quietly let it become the norm.
 - **A plan with no success criteria.** Without field 4 there is nothing to
   approve against and nothing to verify the build against — it is a description,
   not a plan.
-- **Gating trivial work.** Forcing a four-field plan onto a typo is the noise the
+- **Back-filling the Program Design after the code.** Writing the types and
+  signatures to match a diff that already exists is a description of what was
+  built, not a design that shaped it — the same skipped-cheap-correction failure
+  as opening the code PR first, one level down. The artifact earns its place
+  only when it is specified *before* implementation, where it can still change
+  the build (and where it becomes the baton payload a resuming seat reads first).
+- **Gating trivial work.** Forcing a five-field plan onto a typo is the noise the
   exemption exists to prevent. Respect the trivial skip set.
 - **Ungrounded plans.** A plan whose "research sources" are empty when prior
   lessons exist re-creates the recall-on-demand failure ADR-004 §3 fixes. Ground

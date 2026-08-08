@@ -1,4 +1,4 @@
-<!-- cl-sync src=df7413ef -->
+<!-- cl-sync src=4f7594ab -->
 # Known Pitfalls
 
 Org-wide ecosystem traps that have bitten multiple repos and are worth
@@ -89,7 +89,13 @@ gh pr view PR_NUMBER --json state,baseRefName
 alone. Always conjoin with `baseRefName == "main"` (or the relevant target
 branch).
 
-Applies to any monorepo or any repo that uses stacked PRs.
+**Prevention (operator rule, 2026-07-05):** stacked PRs are **forbidden
+org-wide** — every PR branches from `main`; dependent work waits for its
+prerequisite to merge, then branches from the updated `main` (see
+`procedures/commits.md`). This trap fired for real on wheelhouse #46/#47
+(both `MERGED`, neither on `main`; recovered by cherry-pick in #51). The
+diagnostic above remains useful for auditing history and catching stacks
+that slip through.
 
 ## Auto-mode classifier blocks fabricated authorization claims
 
@@ -123,7 +129,39 @@ classifier treats fabrication-pattern retries as a malfunction signal.
 
 This is the load-bearing defense in the future-state governance model
 where developer agents have no merge rights. `.agent/procedures/pr-response.md`
-(when a repo has it) and the user-level `pr-shepherd` skill must be
+(when a repo has it) and the user-level `cl-pr-shepherd` skill must be
 consistent with this behavior; if there's a conflict, the classifier wins.
+
+## ADR / durable-doc edits: volatile anchors, unverified claims, unswept narratives
+
+**Symptom:** mbot R1 flags MEDIUM `api-contracts`/`test-coverage` findings
+on a docs-only ADR (or other durable-doc) PR.
+
+**Root cause:** doc prose asserts facts about code with volatile anchors
+(raw line numbers), states shipped/met/unbuilt claims with no verification
+basis, or revises a narrative without sweeping the document for
+restatements of the old one.
+
+**Diagnostic:** grep the diff for `:<line>` citations; list every
+"shipped / met / unbuilt / verified" claim and check each names its basis;
+after a re-scope, grep the whole doc for the old narrative's phrases.
+
+**Remedy — pre-push checklist for ADR/durable-doc edits:**
+
+1. Cite code by stable anchor (symbol, enum, file path) — never a raw
+   line number.
+2. Every shipped/met/unbuilt claim states its verification basis in the
+   doc itself (repo-wide search scope, the test file exercising the path,
+   or the delivering PR) — re-verify at write time.
+3. After revising a narrative, sweep References/Consequences/status
+   callouts for restatements of the old one; cite another section's
+   rationale only if it is actually the same argument.
+
+Evidence: two consecutive soma ADR PRs (soma#189 R1 — line-number citation
+rot, "unbuilt" claim unverifiable from the diff, misattributed
+cross-section rationale; soma#190 R1 — References bullet restating a
+retracted narrative, AC "met" without coverage basis, contract strings
+asserted unverified) drew exactly these classes and went green in one
+round once fixed. Applies to any repo's ADR/durable-doc edits.
 
 Repo-specific additions: see `known-pitfalls-local.md` (loaded alongside this file).

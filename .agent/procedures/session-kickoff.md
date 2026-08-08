@@ -1,4 +1,4 @@
-<!-- cl-sync src=62d87ba6 -->
+<!-- cl-sync src=edad66e2 -->
 # Session Kickoff Procedure
 
 What a fresh session does first, before any task-specific work. Pairs with
@@ -18,15 +18,69 @@ In order:
    first so missing-dir is a clean no-op without globally silencing
    stderr (which would hide real I/O errors like permission denials
    or broken symlinks):
+   Freshness first (stale-baton guard): fetch, then take candidates from
+   the working tree UNION the remote default branch's tree — a
+   behind-origin checkout must not surface a week-old baton while the
+   live one sits merged on `origin/main`. A candidate that exists only
+   on the remote is read via `git show`, never by pulling into the
+   operator's working tree. The OPEN `handoff`-labeled issue is the
+   authoritative "unresumed" signal — a baton whose issue is closed was
+   already picked up; cross-check with
+   `gh issue list --label handoff --state open` before adopting one.
    ```bash
-   latest=
-   if [ -d docs/handoffs ]; then
-     latest=$(find docs/handoffs -maxdepth 1 -type f -name '*HANDOFF*.md' \
-       | awk -F/ '{key=$NF; sub(/^HANDOFF-/, "", key); print key "\t" $0}' \
-       | sort | tail -1 | cut -f2-)
+   # Fetch failure (offline, auth) degrades to cached refs — visibly, not
+   # silently: the error prints, the kickoff continues.
+   git fetch --prune --quiet origin \
+     || echo "kickoff: fetch failed (offline?) — using cached origin refs" >&2
+   # Each candidate source is gated on its own precondition, so stderr stays
+   # unsuppressed: anything either command prints is a REAL error (permission
+   # denial, repo corruption), not an expected no-op.
+   latest=$( {
+       if [ -d docs/handoffs ]; then
+         find docs/handoffs -maxdepth 1 -type f -name '*HANDOFF*.md'
+       fi
+       if git show-ref -q --verify refs/remotes/origin/main; then
+         # `grep` exits 1 on no match — a legitimate "no remote handoffs
+         # yet", not an error. `|| true` keeps that case from aborting
+         # callers running under `set -e` with pipefail; real git failures
+         # still print on stderr above.
+         git ls-tree --name-only origin/main -- docs/handoffs/ \
+           | grep 'HANDOFF.*\.md$' || true
+       fi
+     } \
+     | sort -u \
+     | awk -F/ '{key=$NF; sub(/^HANDOFF-/, "", key); print key "\t" $0}' \
+     | sort | tail -1 | cut -f2-)
+   if [ -z "$latest" ]; then
+     # workspace-meta fallback (handoff-creation.md, "Where it goes"):
+     # repos without docs/handoffs may carry a top-level HANDOFF.md
+     # current-snapshot file. Same union as the candidates above —
+     # working tree OR origin/main — so a behind-origin checkout does
+     # not silently miss a remote-only snapshot. (`git ls-tree` exits 0
+     # with empty output when the path is absent, so this is set -e
+     # safe without any suppression.)
+     if [ -f HANDOFF.md ]; then
+       latest=HANDOFF.md
+     elif git show-ref -q --verify refs/remotes/origin/main \
+       && [ -n "$(git ls-tree --name-only origin/main -- HANDOFF.md)" ]; then
+       latest=HANDOFF.md
+     fi
    fi
    if [ -n "$latest" ]; then
-     cat "$latest"
+     if [ -f "$latest" ]; then cat "$latest"
+     else
+       # remote-only: local checkout is behind. Surface a read failure
+       # explicitly (and survive set -e) — a silent empty body here would
+       # be indistinguishable from an empty handoff. git's own stderr line
+       # above this message says WHICH failure it was (path missing on the
+       # ref vs command/network error).
+       git show "origin/main:$latest" \
+         || echo "handoff lookup: '$latest' selected but could not be read from origin/main (see the git error above for whether the path is missing or the read failed) — refetch or inspect manually" >&2
+     fi
+     # the cross-check the prose above requires: the baton's handoff issue
+     # must still be OPEN — an empty list means it was already resumed.
+     gh issue list --label handoff --state open \
+       || echo "kickoff: could not list open handoff issues (offline/auth?) — check the baton's issue state manually before adopting it" >&2
    fi
    # empty $latest = no handoff yet (safe under set -e)
    ```
@@ -36,10 +90,16 @@ In order:
    (without it, every legacy name would sort after every date-first name,
    since letters compare greater than digits). Do NOT use mtime — it is
    affected by checkout order. `-type f` filters out any directory that
-   happens to match the glob. Test the **value of `$latest`**, not the
-   pipeline's `$?`: `find ... | sort | tail` exits 0 whether or not
-   anything matched, so `$?` cannot distinguish "no handoff" from "I/O
-   error" — only the value of `$latest` can.
+   happens to match the glob. `sort -u` dedupes a file present in both
+   the working tree and the remote tree. Test the **value of `$latest`**,
+   not the pipeline's `$?`: `find ... | sort | tail` exits 0 whether or
+   not anything matched, so `$?` cannot distinguish "no handoff" from
+   "I/O error" — only the value of `$latest` can. The top-level
+   `HANDOFF.md` fallback applies only when no `docs/handoffs` baton was
+   found — the workspace-meta current-snapshot convention documented in
+   `handoff-creation.md` ("Where it goes") — and checks the same
+   working-tree-union-remote sources as the main candidate search; a
+   remote-only snapshot is then read by the existing `git show` branch.
 3. **Initialize the MCP session.** Call `mcp__centient__start_session_coordination`
    with `sessionId="YYYY-MM-DD-<keyword>"` and the absolute `projectPath`.
    See `procedures/session-management.md` for parameters.
@@ -68,7 +128,7 @@ In order:
    git fetch --prune --quiet
    git status -sb
    git log --oneline -10
-   gh pr list --state open --author "@me"
+   cl pr status
    ```
    `--quiet` suppresses the per-ref output but still reports actual errors.
    On large repos the fetch can add noticeable latency; skip steps 3-5
@@ -86,8 +146,8 @@ In order:
   `docs/handoffs/` and `git log` for prior lessons on this surface. Note in your
   first response that the knowledge layer is offline so the operator knows the
   engram recall didn't run and the grounding is degraded.
-- **No `docs/handoffs/`**: skip step 2 silently.
-- **No prior PRs by the agent**: step 5's `gh pr list` returns empty, which
+- **No `docs/handoffs/` and no top-level `HANDOFF.md`**: skip step 2 silently.
+- **No prior PRs by the agent**: step 5's `cl pr status` returns empty, which
   is fine.
 
 ## What you should know after kickoff
@@ -122,5 +182,10 @@ The kickoff is cheap; an uninformed first action is expensive.
   locally-cached remote-tracking refs; without a preceding `git fetch`,
   ahead/behind counts may be hours or days out of date. Always fetch
   first (step 5 does this) before deciding whether to rebase or branch.
+- **Resuming a stale baton.** A working-tree-only handoff scan on a
+  behind-origin checkout surfaces an old baton and silently hides the
+  live one. Step 2's remote union prevents it; the open `handoff` issue
+  is the tiebreaking truth — a baton whose issue is closed was already
+  resumed.
 
 Repo-specific additions: see `session-kickoff-local.md` (loaded alongside this file).

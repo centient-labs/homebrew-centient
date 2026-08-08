@@ -1,4 +1,4 @@
-<!-- cl-sync src=989720ca -->
+<!-- cl-sync src=a6cf53a1 -->
 # Security Constraints
 
 Principles: P15 (Secure by Default), P16 (Authority Outside the Sandbox)
@@ -12,11 +12,20 @@ sandbox, which credentials are at stake, where the protected domain lives)
 in `security-local.md`; a repo that never executes untrusted input inherits
 the principle without an instantiation.
 
-**The sandbox is whatever executes untrusted input** — PR- or agent-authored
-code (build scripts, tests, package hooks), LLM output that can trigger tools
-or privileged actions, and data/control inputs that can cause execution or
-mutation: MCP tool arguments, webhook payloads, deserialized artifacts,
-workflow/config files, package metadata, and template-expansion inputs.
+**The sandbox is whatever executes untrusted input.** An input is untrusted —
+wherever it can trigger tools or privileged/irreversible actions — when either
+clause holds (standards#25 ruling, 2026-07-18): **(a) provenance** — it is, or
+derives from, data that crossed the trust boundary (anything an external party
+can influence), however deterministic the processing; or **(b) unverifiability**
+— it is generative/agentic model output, regardless of the provenance of the
+model's inputs. Examples (illustrative, not a closed list): PR- or
+agent-authored code (build scripts, tests, package hooks), LLM output that can
+trigger tools or privileged actions, and data/control inputs that can cause
+execution or mutation: MCP tool arguments, webhook payloads, deserialized
+artifacts, workflow/config files, package metadata, and template-expansion
+inputs. Determinism is orthogonal to trust — a temperature-0 model replay and
+a deterministically-parsed webhook payload are both untrusted; trusted
+randomness makes nothing untrusted.
 Isolation (containers, VMs) protects the host *from* that code; it does **not**
 protect secrets *co-resident with* it. Absent a separately enforced
 intra-sandbox boundary (a sidecar secret broker in a distinct isolation
@@ -120,14 +129,25 @@ git diff --staged | grep -iE "(api_key|password|secret|token|credential)" && ech
 ```typescript
 import path from "path";
 
-function validatePath(userPath: string, allowedBase: string): boolean {
+/**
+ * `allowBase` is a CALLER decision, never data: it must be a literal at the
+ * call site (or derive from the caller's own config), never from user input —
+ * an attacker who controls the options object controls the boundary itself.
+ */
+function validatePath(
+  userPath: string,
+  allowedBase: string,
+  { allowBase = false }: { allowBase?: boolean } = {},
+): boolean {
   const base = path.resolve(allowedBase);
   const resolved = path.resolve(base, userPath);
   // Compare by path segment, not string prefix: `/project` must NOT accept
-  // `/project-sibling/secret`. Allow the base itself or anything under base/.
-  // Note: an empty/"." userPath resolves to base (allowed). If "no path" should
-  // be an error in your context, reject empty input before calling this.
-  return resolved === base || resolved.startsWith(base + path.sep);
+  // `/project-sibling/secret`.
+  // An empty or "." userPath resolves to base itself. Secure by default (P15):
+  // that is REJECTED unless the caller opts in with allowBase — "no path" must
+  // be an explicit grant, not an accident.
+  if (resolved === base) return allowBase;
+  return resolved.startsWith(base + path.sep);
 }
 
 // Usage
@@ -165,14 +185,24 @@ Never expose stack traces, queries, or internal paths in error responses:
 return { error: { message: error.stack } };
 
 // Good — sanitizeError maps an internal error to a safe, generic message
-// (no stack/query/path); define it once per project, e.g.:
-//   const sanitizeError = (e: unknown) => "An internal error occurred";
 return {
   error: {
     code: "INTERNAL_ERROR",
     message: sanitizeError(error),
   },
 };
+```
+
+Define `sanitizeError` once per project. Reference implementation — log the
+full error internally, return only a generic message to the caller:
+
+```typescript
+function sanitizeError(error: unknown): string {
+  // Full detail goes to internal logs only (redacted per observability rules).
+  logger.error("internal error", { error });
+  // The caller sees a generic message — never the stack, query, or path.
+  return "An internal error occurred";
+}
 ```
 
 ## Cloud CLI Restrictions
@@ -204,7 +234,7 @@ operations require human invocation.
 
 ## GitHub Actions
 
-See `support/standards/ci-security-policy.md` for the full policy. Summary:
+See `20support/standards/ci-security-policy.md` for the full policy. Summary:
 
 - Pin all third-party actions to a full commit SHA, never a tag
 - Never hardcode secrets in workflow files
@@ -230,3 +260,8 @@ If you discover a security vulnerability:
 3. Allow reasonable time for fix before disclosure
 
 Repo-specific additions: see `security-local.md` (loaded alongside this file).
+That file is optional — if it does not exist, this repo has no repo-specific
+security instantiation and this file stands alone. Create `security-local.md`
+only when there is something repo-specific to record (e.g. the Trust Boundary
+instantiation above: which process is the sandbox, which credentials are at
+stake, where the protected domain lives).

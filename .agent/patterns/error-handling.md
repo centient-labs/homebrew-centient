@@ -1,4 +1,4 @@
-<!-- cl-sync src=f14cdcfb -->
+<!-- cl-sync src=61b23421 -->
 # Error Handling Pattern
 
 Principles: P2 (No Silent Degradation), P8 (Idempotency), P11 (Explicit Uncertainty)
@@ -108,6 +108,25 @@ Distinguish between confirmed absence and uncertain absence:
 // Uncertain: we couldn't check
 { ok: false, error: { code: "SERVICE_UNAVAILABLE" } }
 ```
+
+## Validate Timestamps at Serialization Boundaries (P2, P11)
+
+**Never construct a `Date` from an unvalidated numeric timestamp when the
+result will be serialized** — `new Date(NaN).toISOString()` throws, so one
+non-finite epoch-ms value can crash the entire response path.
+
+```typescript
+// Good — project invalid input as an explicit null
+const isoOrNull = (ms: number): string | null =>
+  Number.isFinite(ms) ? new Date(ms).toISOString() : null;
+
+// Bad — throws at .toISOString() if ms is NaN/Infinity
+resetAt: new Date(snapshot.resetAtMs).toISOString()
+```
+
+Widen the field type to `string | null` so consumers see the gap instead of
+a crash. The boundary owns the guard, not the feeder — "today's only caller
+can't produce NaN" is not a defense (mbot#1533, #1539).
 
 ## Guidelines
 
