@@ -11,7 +11,7 @@ class ClBootstrap < Formula
   depends_on arch: :arm64
 
   url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-bootstrap-v#{version}/cl-bootstrap-macos-arm64.tar.gz"
-  sha256 "672efa9b75a87ee62840e21b4b30b5504e0475e6feff51cd4d48685e9548d98b"
+  sha256 "0ad3176af12b9080ed146a021376b85301fc71d813322d05e2cc32576500e99f"
 
   def install
     bin.install "cl-bootstrap"
