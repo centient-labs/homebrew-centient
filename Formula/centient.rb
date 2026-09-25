@@ -102,6 +102,54 @@ class Centient < Formula
   end
 
   test do
+    # Homebrew sets HOME to testpath; keep every state-directory probe there.
+    assert_equal testpath.to_s, Dir.home
+    default_home = testpath/".centient"
+    existing_home = testpath/"configured-centient"
+    existing_home.mkpath
+    missing_home = testpath/"missing-centient"
+
+    # SimulateSystem affects selectors, but OS.linux? reads the real host OS.
+    original_linux = OS.method(:linux?)
+    begin
+      [true, false].each do |linux|
+        OS.define_singleton_method(:linux?) { linux }
+
+        [nil, "", "  ", missing_home.to_s].each do |state_home|
+          with_env(CENTIENT_HOME: state_home) do
+            text = caveats
+            assert_match "centient setup", text
+            refute_match "centient update", text
+            assert_match "export ENGRAM_URL=", text
+            if linux
+              refute_match "brew install centient-labs/centient/engram", text
+            else
+              assert_match "brew install centient-labs/centient/engram", text
+            end
+          end
+        end
+
+        with_env(CENTIENT_HOME: existing_home.to_s) do
+          assert_match "centient update", caveats
+          refute_match "centient setup", caveats
+        end
+      end
+
+      default_home.mkpath
+      [nil, "", "  "].each do |state_home|
+        with_env(CENTIENT_HOME: state_home) do
+          assert_match "centient update", caveats
+          refute_match "centient setup", caveats
+        end
+      end
+      with_env(CENTIENT_HOME: missing_home.to_s) do
+        assert_match "centient setup", caveats
+        refute_match "centient update", caveats
+      end
+    ensure
+      OS.define_singleton_method(:linux?, original_linux)
+    end
+
     assert_match version.to_s, shell_output("#{bin}/centient --version")
   end
 end
