@@ -19,6 +19,13 @@
       "grantedAt": "2026-09-25",
       "by": "operator",
       "note": "engram-server#2241: engram-server seat lands the engram on_linux stanza"
+    },
+    {
+      "id": "centient",
+      "scope": "granted",
+      "grantedAt": "2026-09-25",
+      "by": "operator",
+      "note": "centient#875: centient seat lands the centient on_linux stanza"
     }
   ]
 }
