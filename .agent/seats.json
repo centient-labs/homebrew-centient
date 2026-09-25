@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "primary": "homebrew-centient",
+  "seats": [
+    {
+      "id": "homebrew-centient",
+      "scope": "primary"
+    }
+  ]
+}
