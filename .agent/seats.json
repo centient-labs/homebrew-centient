@@ -5,6 +5,13 @@
     {
       "id": "homebrew-centient",
       "scope": "primary"
+    },
+    {
+      "id": "cli",
+      "scope": "granted",
+      "grantedAt": "2026-09-25",
+      "by": "operator",
+      "note": "homebrew-centient#16: cli seat lands the cl-bootstrap Linux formula"
     }
   ]
 }
