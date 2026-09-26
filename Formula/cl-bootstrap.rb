@@ -7,11 +7,23 @@ class ClBootstrap < Formula
   version "0.2.0"
   # license - TBD
 
-  depends_on :macos
-  depends_on arch: :arm64
+  on_macos do
+    on_arm do
+      url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-bootstrap-v#{version}/cl-bootstrap-macos-arm64.tar.gz"
+      sha256 "506f87526620f7cecc7fceb7c1a8e62beaf504c4e2a187e54b1e36bc3e17a5b2"
+    end
+  end
 
-  url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-bootstrap-v#{version}/cl-bootstrap-macos-arm64.tar.gz"
-  sha256 "506f87526620f7cecc7fceb7c1a8e62beaf504c4e2a187e54b1e36bc3e17a5b2"
+  on_linux do
+    on_arm do
+      url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-bootstrap-v#{version}/cl-bootstrap-linux-arm64.tar.gz"
+      sha256 "eda615f45628bbb83e9fdb4a7a58ec158851c739128e8135344a35415f6d26dc"
+    end
+    on_intel do
+      url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-bootstrap-v#{version}/cl-bootstrap-linux-x64.tar.gz"
+      sha256 "4abe70e44e2c3f3078ed8d6a84dbd0450e8dc15a4fe7e561a7a1d6c2bb91dbd0"
+    end
+  end
 
   def install
     bin.install "cl-bootstrap"
