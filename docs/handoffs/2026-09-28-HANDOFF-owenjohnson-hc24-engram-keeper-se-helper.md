@@ -13,7 +13,7 @@ predecessor: null
 ## Priority for next session **(required)**
 
 1. Coordinator notification for this lane is still owed. The seat could not post over comms: the unit-1 "PR open" and "approved" pings and the "lane dry" post never reached the coordinator. The three refusals are recorded verbatim on https://github.com/centient-labs/homebrew-centient/issues/24. Before this lane dispatches again, the comms credential for `repo:homebrew-centient` needs fixing (403 FORBIDDEN "Credential is not authorized to admin this channel" on `cl comms send --to workspace --channel repo:homebrew-centient`).
-2. Informational, owned by the operator's 0.69.0 publish card (A544), not this lane: whether Homebrew's `bin.install` keeps the helper's Developer ID signature is unverified (engram-server#2426). The post-install check is `codesign -dv "$(brew --prefix)/bin/engram-keeper-se-helper"`, which should report TeamIdentifier 25V4M6853G.
+2. Informational, owned by the operator's 0.69.0 publish card (A544), not this lane: whether Homebrew's `bin.install` keeps the helper's Developer ID signature is unverified (engram-server#2426). The post-install check has two parts, and both must pass. First, `codesign --verify --strict --verbose "$(brew --prefix)/bin/engram-keeper-se-helper"` must exit 0; this proves the signature is still valid. Second, `codesign -dv` on the same path must report TeamIdentifier 25V4M6853G. `-dv` only displays metadata, so it cannot catch a binary whose signature was invalidated but still carries the expected Team ID.
 
 CL-CLAIM pr-state centient-labs/homebrew-centient#25 MERGED -- the formula install line the 0.69.0 publish waited on has landed on main
 
