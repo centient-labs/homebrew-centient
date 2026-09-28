@@ -121,6 +121,13 @@ class Engram < Formula
     if File.exist?("engram-comms")
       bin.install "engram-comms"
     end
+    # engram-keeper-se-helper — the Developer-ID-signed Secure Enclave helper
+    # (engram-server#2418). Only the macos-arm64 tarball carries it, so the
+    # guard makes this a no-op on Linux and on releases that predate it. The
+    # keeper resolves the helper beside its own binary, hence bin.
+    if File.exist?("engram-keeper-se-helper")
+      bin.install "engram-keeper-se-helper"
+    end
     if File.directory?("engram-web-dist")
       (share/"engram"/"engram-web-dist").install Dir["engram-web-dist/*"]
     end
