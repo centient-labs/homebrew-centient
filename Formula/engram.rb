@@ -121,6 +121,17 @@ class Engram < Formula
     if File.exist?("engram-comms")
       bin.install "engram-comms"
     end
+    # engram-operator / engram-comms-operator — the operator-only credential
+    # entry points (engram-server#1515, #2657), first shipped in 0.72.0. The
+    # guard keeps this formula installable against a tarball that predates
+    # them: `bin.install` of a missing file raises Errno::ENOENT. The release
+    # flow version-smokes both binaries in the staged tarball before publish.
+    if File.exist?("engram-operator")
+      bin.install "engram-operator"
+    end
+    if File.exist?("engram-comms-operator")
+      bin.install "engram-comms-operator"
+    end
     # engram-keeper-se-helper — the Developer-ID-signed Secure Enclave helper
     # (engram-server#2418). Only the macos-arm64 tarball carries it, so the
     # guard makes this a no-op on Linux and on releases that predate it. The
@@ -182,5 +193,10 @@ class Engram < Formula
 
   test do
     assert_match(/\d+\.\d+\.\d+/, shell_output("#{bin}/engram-local --version"))
+    %w[engram-operator engram-comms-operator].each do |b|
+      next unless (bin/b).exist?
+
+      assert_match version.to_s, shell_output("#{bin}/#{b} --version")
+    end
   end
 end
