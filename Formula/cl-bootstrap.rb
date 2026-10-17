@@ -4,24 +4,24 @@
 class ClBootstrap < Formula
   desc "Bootstrap shim for the centient-labs development system (co-developers; gate is GitHub org membership)"
   homepage "https://github.com/centient-labs/homebrew-centient"
-  version "0.2.0"
+  version "0.3.0"
   # license - TBD
 
   on_macos do
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-bootstrap-v#{version}/cl-bootstrap-macos-arm64.tar.gz"
-      sha256 "506f87526620f7cecc7fceb7c1a8e62beaf504c4e2a187e54b1e36bc3e17a5b2"
+      sha256 "8290090e625419ff29e73c2624f7fad47bc28d7fdf1a8301ee06a7d17adbff07"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-bootstrap-v#{version}/cl-bootstrap-linux-arm64.tar.gz"
-      sha256 "eda615f45628bbb83e9fdb4a7a58ec158851c739128e8135344a35415f6d26dc"
+      sha256 "bd07ae64c851f7a47353a404a0bc7e24932d06c5b52ee523d5c2d3d45c355af6"
     end
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/cl-bootstrap-v#{version}/cl-bootstrap-linux-x64.tar.gz"
-      sha256 "4abe70e44e2c3f3078ed8d6a84dbd0450e8dc15a4fe7e561a7a1d6c2bb91dbd0"
+      sha256 "281605cac329c71b46b19e4551a1f412eb3de1091c1b8711ff60ae39c1bed9bc"
     end
   end
 
