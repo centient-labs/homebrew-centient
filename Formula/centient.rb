@@ -4,7 +4,7 @@
 class Centient < Formula
   desc "Context engineering MCP server for Claude Code"
   homepage "https://github.com/centient-labs/centient"
-  version "0.36.0"
+  version "0.37.0"
   # license - TBD
 
   on_macos do
@@ -24,19 +24,19 @@ class Centient < Formula
     # selector as a child of on_macos, and `brew style` fails otherwise.
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/centient-v#{version}/centient-macos-arm64.tar.gz"
-      sha256 "3f5639bc4e97cbcd4326a11d3b635cfa6ddf8b397e6cfeb3148b82f40fd40b07"
+      sha256 "3d9cc53cf2e92d34bb698dd0c508e02dd8a3fbc2f5ecd846d4bd8457841a5962"
     end
   end
 
   on_linux do
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/centient-v#{version}/centient-linux-x64.tar.gz"
-      sha256 "7a33a6d3971c9c967bb53da5c4c0fb68e9a631ab949a4bc987a06621f6466405"
+      sha256 "5ab6ac8b1eb784aa8751944f03fe1873f14053d9673d35b35b52448e7b747f70"
     end
 
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/centient-v#{version}/centient-linux-arm64.tar.gz"
-      sha256 "390d1a95b73db374c3c0b831efdfef25064a7961aa949a755dbf5126d30320f1"
+      sha256 "3c1060902ae71e89d1202dc75b11a20e135f0d65d2753b83821a839f21aa939e"
     end
   end
 
