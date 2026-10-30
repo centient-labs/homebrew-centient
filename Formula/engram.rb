@@ -142,6 +142,9 @@ class Engram < Formula
     if File.directory?("engram-web-dist")
       (share/"engram"/"engram-web-dist").install Dir["engram-web-dist/*"]
     end
+    if File.directory?("engram-access-dist")
+      (share/"engram"/"engram-access-dist").install Dir["engram-access-dist/*"]
+    end
   end
 
   def post_install
