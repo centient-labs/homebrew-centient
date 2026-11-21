@@ -6,7 +6,7 @@ require "json"
 class Engram < Formula
   desc "Local memory daemon for AI agents — embedded PostgreSQL + pgvector + ONNX embeddings"
   homepage "https://github.com/centient-labs/engram-server"
-  version "0.95.0"
+  version "0.96.0"
   # license - TBD
 
   # One release serves two platforms, so the url/sha256 pair lives in a
@@ -52,7 +52,7 @@ class Engram < Formula
 
     on_arm do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/engram-v#{version}/engram-macos-arm64.tar.gz"
-      sha256 "09491cebbd92620803429f30b5a20f4b535d285c585b022613dc4d125080a7e6"
+      sha256 "7fbe14ef9ee425ec9886aba905b7b0a69d7b2ba92e76ba3aaece07be6956418a"
     end
   end
 
@@ -61,7 +61,7 @@ class Engram < Formula
 
     on_intel do
       url "https://github.com/centient-labs/homebrew-centient/releases/download/engram-v#{version}/engram-linux-x64.tar.gz"
-      sha256 "6c850edc01954701fdb8b7d7bc5dc64b56494ec93c291e3cb8cbf01279c44ce5"
+      sha256 "a15e41f91edbc3dff3c87e2d8ffeae8078fd357b09d86f134b2bef6b9003bcd3"
     end
   end
 
